@@ -42,22 +42,34 @@ while true; do
     echo "======== Uptime:" >> $LOG_FILE                                                                                                                                                                                                                                      
     uptime >> $LOG_FILE                                                                                                                                                                                                                                                       
     echo "======== Before Cache Drop:" >> $LOG_FILE                                                                                                                                                                                                                           
-    echo "================= FREE:" >> $LOG_FILE                                                                                                                                                                                                                               
-    free >> $LOG_FILE                                                                                                                                                                                                                                                         
-    beforemem=`free -m | grep Mem | awk '{print $4}'`                                                                                                                                                                                                                         
- 
+    echo "================= FREE:" >> $LOG_FILE   
+    #free >> $LOG_FILE                                                                                                                                                                                                                                                         
+    #beforemem=`free -m | grep Mem | awk '{print $4}'`  
+    free -m 	> tmp.txt	
+    cat tmp.txt >> $LOG_FILE  
+	beforemem=`cat tmp.txt | grep Mem | awk '{print $4}'`
+	
+	
     echo "================= TOP:" >> $LOG_FILE                                                                                                                                                                                                                                
-    top -b -n 1 | head -n 24 >> $LOG_FILE                                                                                                                                                                                                                                     
-    beforeCpu=`top -b -n 1 | head -n 24 | grep "/usr/bin/slamwared -t /etc/sdp_ref.json" | awk 'NR==1{print $7}'  | awk -F% '{print $1}'`      #%                                                                                                                                                             
+    #top -b -n 1 | head -n 24 >> $LOG_FILE	
+    #beforeCpu=`top -b -n 1 | head -n 24 | grep "/usr/bin/slamwared -t /etc/sdp_ref.json" | awk 'NR==1{print $7}'  | awk -F% '{print $1}'`      #%                                                                                                                                                             
+    top -b -n 1 | head -n 24 > tmp.txt	
+	cat tmp.txt > $LOG_FILE
+	beforeCpu=`cat tmp.txt  | grep "/usr/bin/slamwared -t /etc/sdp_ref.json" | awk 'NR==1{print $7}'  | awk -F% '{print $1}'`      #%                                                                                                                                                             
 
+	
     echo 1 > /proc/sys/vm/drop_caches || exit 1                                                                                                                                                                                                                               
 
     echo "======== After Cache Dropped:" >> $LOG_FILE                                                                                                                                                                                                                         
     echo "================= FREE:" >> $LOG_FILE                                                                                                                                                                                                                               
     free >> $LOG_FILE                                                                                                                                                                                                                                                         
     echo "================= TOP:" >> $LOG_FILE                                                                                                                                                                                                                                
-    top -b -n 1 | head -n 24 >> $LOG_FILE                                                                                                                                                                                                                                     
-    afterCpu=`top -b -n 1 | head -n 24 | grep "/usr/bin/slamwared -t /etc/sdp_ref.json" | awk 'NR==1{print $7}' | awk -F% '{print $1}'`          #%
+    #top -b -n 1 | head -n 24 >> $LOG_FILE                                                                                                                                                                                                                                     
+    #afterCpu=`top -b -n 1 | head -n 24 | grep "/usr/bin/slamwared -t /etc/sdp_ref.json" | awk 'NR==1{print $7}' | awk -F% '{print $1}'`          #%
+    top -b -n 1 | head -n 24 > tmp.txt	
+	cat tmp.txt > $LOG_FILE
+	afterCpu=`cat tmp.txt  | grep "/usr/bin/slamwared -t /etc/sdp_ref.json" | awk 'NR==1{print $7}'  | awk -F% '{print $1}'`      #%                                                                                                                                                             
+
 	#afterCpu=`top -b -n 1 | head -n 24 | grep "/usr/bin/slamwared -t /etc/sdp_ref.json" | awk '{print $7}' | sed -n '1p'`
 	#echo $time_date"  "$beforemem"  "$beforeCpu"  "$afterCpu   >> $LOG_STATISTIC_FILE                                                                                                                                                                                        
     echo -n $time_date"  " >> $LOG_STATISTIC_FILE                                                                                                                                                                                                                             
